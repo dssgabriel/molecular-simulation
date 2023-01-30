@@ -1,8 +1,16 @@
+use clap::Parser;
 use std::io::Read;
+
+#[derive(Debug, Parser)]
+#[command(version, author, about)]
+struct Cli {
+    #[arg(short = 'c', long)]
+    configuration: String,
+}
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct ParticleSystem {
-    kind: Vec<u8>,
+    kind: Vec<i8>,
     x: Vec<f64>,
     y: Vec<f64>,
     z: Vec<f64>,
@@ -31,7 +39,7 @@ impl ParticleSystem {
             particle_sys.kind.push(
                 line.next()
                     .unwrap()
-                    .parse::<u8>()
+                    .parse::<i8>()
                     .expect("failed to parse particle kind to `u8`"),
             );
             particle_sys.x.push(
@@ -92,14 +100,8 @@ impl ParticleSystem {
 }
 
 fn main() {
-    let sys = ParticleSystem::from_config("particule.xyz".into());
-    // for i in 0..10 {
-    //     println!(
-    //         "#{i} kind: {}, x: {:02.6}, y: {:02.6}, z: {:02.6}",
-    //         sys.kind[i], sys.x[i], sys.y[i], sys.z[i]
-    //     );
-    // }
-
+    let args = Cli::parse();
+    let sys = ParticleSystem::from_config(args.configuration.into());
     let u_lj = sys.lennard_jones_potential();
-    println!("\nU_LJ = {} TeV", u_lj / 1E+12);
+    println!("U_LJ = {:E} eV", u_lj);
 }
