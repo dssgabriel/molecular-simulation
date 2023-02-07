@@ -9,5 +9,7 @@ cargo build --release
 ## Executing
 Execute with a given configuration file:
 ```sh
-cargo run --release -- -c particules.xyz
+cargo run --release -- --configuration particules.xyz
+# Or the shorthand:
+cargo r -r -q -- -c particules.xyz
 ```
