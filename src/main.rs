@@ -23,7 +23,7 @@ fn main() {
         duration, system.energy, system.sum_of_forces
     );
 
-    // TODO: Periodical Lennard-Jones
+    // Periodical Lennard-Jones
     let now = Instant::now();
     system2.periodical_lennard_jones();
     let duration = now.elapsed();
