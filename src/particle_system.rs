@@ -1,6 +1,8 @@
 use crate::consts::*;
 use crate::vec3::Vec3;
 
+use rayon::prelude::*;
+
 use std::fs::File;
 use std::io::Read;
 
@@ -47,20 +49,36 @@ impl ParticleSystem {
     }
 
     pub fn lennard_jones(&mut self) {
-        for i in 0..self.positions.len() {
-            for j in (i + 1)..self.positions.len() {
-                let p_i = self.positions[i];
-                let p_j = self.positions[j];
+        self.energy += self
+            .forces
+            .par_iter_mut()
+            .enumerate()
+            .map(|(i, force_i)| {
+                let mut energy = 0.0;
 
-                let dist = R_STAR.powi(2) / p_i.dist_sq(p_j);
-                self.energy += dist.powi(6) - 2.0 * dist.powi(3);
+                for j in 0..self.positions.len() {
+                    if i == j {
+                        continue;
+                    }
 
-                let du_ij = Vec3::broadcast(-48.0 * EPSILON_STAR * (dist.powi(7) - dist.powi(4)));
-                let force = du_ij * (p_i - p_j);
-                self.forces[i] += force;
-                self.forces[j] += -force;
-            }
-        }
+                    let distance =
+                        R_STAR.powi(2) / self.positions[i].distance_square(self.positions[j]);
+                    let du_ij =
+                        Vec3::splat(-48.0 * EPSILON_STAR * (distance.powi(7) - distance.powi(4)));
+
+                    // Compute force exerted on particle `i`
+                    *force_i += du_ij * (self.positions[i] - self.positions[j]);
+
+                    // Update energy of the particle system
+                    // (but only for i < j so we don't double-count)
+                    if i < j {
+                        energy += distance.powi(6) - 2.0 * distance.powi(3);
+                    }
+                }
+
+                energy
+            })
+            .sum::<f64>();
 
         self.sum_of_forces = self.forces.iter().fold(Vec3::zero(), |acc, f| acc + *f);
         self.energy *= 4.0 * EPSILON_STAR;
@@ -78,26 +96,36 @@ impl ParticleSystem {
         }
 
         for k in 0..N_SYM {
-            for i in 0..self.positions.len() {
-                for j in 0..self.positions.len() {
-                    if i == j {
-                        continue;
+            self.energy += self
+                .forces
+                .par_iter_mut()
+                .enumerate()
+                .map(|(i, force_i)| {
+                    let mut energy = 0.0;
+
+                    for j in 0..self.positions.len() {
+                        if i == j {
+                            continue;
+                        }
+
+                        let tmp = self.positions[j] + trans_vec[k];
+                        let distance = self.positions[i].distance_square(tmp);
+                        if distance > R_CUT.powi(2) {
+                            continue;
+                        }
+                        let distance = R_STAR.powi(2) / distance;
+
+                        let du_ij = Vec3::splat(
+                            -48.0 * EPSILON_STAR * (distance.powi(7) - distance.powi(4)),
+                        );
+
+                        *force_i += du_ij * (self.positions[i] - tmp);
+                        energy += distance.powi(6) - 2.0 * distance.powi(3);
                     }
 
-                    let tmp = self.positions[j] + trans_vec[k];
-                    let dist = self.positions[i].dist_sq(tmp);
-                    if dist > R_CUT.powi(2) {
-                        continue;
-                    }
-                    let dist = R_STAR.powi(2) / dist;
-                    self.energy += dist.powi(6) - 2.0 * dist.powi(3);
-
-                    let du_ij =
-                        Vec3::broadcast(-48.0 * EPSILON_STAR * (dist.powi(7) - dist.powi(4)));
-
-                    self.forces[i] += du_ij * (self.positions[i] - tmp);
-                }
-            }
+                    energy
+                })
+                .sum::<f64>();
         }
 
         self.sum_of_forces = self.forces.iter().fold(Vec3::zero(), |acc, f| acc + *f);
