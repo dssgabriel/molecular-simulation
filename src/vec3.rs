@@ -15,7 +15,7 @@ impl Vec3 {
     }
 
     #[inline]
-    pub fn broadcast(val: f64) -> Self {
+    pub fn splat(val: f64) -> Self {
         Self::new(val, val, val)
     }
 
@@ -77,15 +77,15 @@ impl Vec3 {
     }
 
     #[inline]
-    pub fn dist_sq(&self, rhs: Self) -> f64 {
+    pub fn distance_square(&self, rhs: Self) -> f64 {
         (rhs.x - self.x) * (rhs.x - self.x)
             + (rhs.y - self.y) * (rhs.y - self.y)
             + (rhs.z - self.z) * (rhs.z - self.z)
     }
 
     #[inline]
-    pub fn dist(&self, rhs: Self) -> f64 {
-        self.dist_sq(rhs).sqrt()
+    pub fn distance(&self, rhs: Self) -> f64 {
+        self.distance_square(rhs).sqrt()
     }
 
     #[inline]
@@ -201,12 +201,12 @@ impl Vec3 {
 
     #[inline]
     pub fn zero() -> Self {
-        Self::broadcast(0.0)
+        Self::splat(0.0)
     }
 
     #[inline]
     pub fn one() -> Self {
-        Self::broadcast(1.0)
+        Self::splat(1.0)
     }
 }
 
