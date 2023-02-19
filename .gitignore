@@ -1,1 +1,7 @@
+# Directories to ignore
 /target
+/maqao
+
+# Files to ignore
+maqao_cfg.lua
+particule_long.xyz
