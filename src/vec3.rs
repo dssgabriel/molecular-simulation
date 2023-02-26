@@ -1,5 +1,7 @@
 use std::fmt::Display;
-use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
+use std::ops::{
+    Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Rem, RemAssign, Sub, SubAssign,
+};
 
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct Vec3 {
@@ -10,17 +12,17 @@ pub struct Vec3 {
 
 impl Vec3 {
     #[inline]
-    pub fn new(x: f64, y: f64, z: f64) -> Self {
+    pub const fn new(x: f64, y: f64, z: f64) -> Self {
         Self { x, y, z }
     }
 
     #[inline]
-    pub fn splat(val: f64) -> Self {
+    pub const fn splat(val: f64) -> Self {
         Self::new(val, val, val)
     }
 
     #[inline]
-    pub fn unit_x() -> Self {
+    pub const fn unit_x() -> Self {
         Self {
             x: 1.0,
             y: 0.0,
@@ -29,7 +31,7 @@ impl Vec3 {
     }
 
     #[inline]
-    pub fn unit_y() -> Self {
+    pub const fn unit_y() -> Self {
         Self {
             x: 0.0,
             y: 1.0,
@@ -38,11 +40,38 @@ impl Vec3 {
     }
 
     #[inline]
-    pub fn unit_z() -> Self {
+    pub const fn unit_z() -> Self {
         Self {
             x: 0.0,
             y: 0.0,
             z: 1.0,
+        }
+    }
+
+    #[inline]
+    pub const fn x(val: f64) -> Self {
+        Self {
+            x: val,
+            y: 0.0,
+            z: 0.0,
+        }
+    }
+
+    #[inline]
+    pub const fn y(val: f64) -> Self {
+        Self {
+            x: val,
+            y: 0.0,
+            z: 0.0,
+        }
+    }
+
+    #[inline]
+    pub const fn z(val: f64) -> Self {
+        Self {
+            x: val,
+            y: 0.0,
+            z: 0.0,
         }
     }
 
@@ -200,19 +229,23 @@ impl Vec3 {
     }
 
     #[inline]
-    pub fn zero() -> Self {
+    pub const fn zero() -> Self {
         Self::splat(0.0)
     }
 
     #[inline]
-    pub fn one() -> Self {
+    pub const fn one() -> Self {
         Self::splat(1.0)
+    }
+
+    #[inline]
+    pub fn sum(&self) -> f64 {
+        self.x + self.y + self.z
     }
 }
 
-impl Add for Vec3 {
+impl Add<Vec3> for Vec3 {
     type Output = Self;
-
     #[inline]
     fn add(self, rhs: Self) -> Self::Output {
         Self {
@@ -223,7 +256,7 @@ impl Add for Vec3 {
     }
 }
 
-impl AddAssign for Vec3 {
+impl AddAssign<Vec3> for Vec3 {
     #[inline]
     fn add_assign(&mut self, rhs: Self) {
         self.x += rhs.x;
@@ -232,31 +265,71 @@ impl AddAssign for Vec3 {
     }
 }
 
-impl Div for Vec3 {
+impl Add<f64> for Vec3 {
     type Output = Self;
-
     #[inline]
-    fn div(self, rhs: Self) -> Self::Output {
+    fn add(self, rhs: f64) -> Self::Output {
         Self {
-            x: self.x / rhs.x,
-            y: self.y / rhs.y,
-            z: self.z / rhs.z,
+            x: self.x + rhs,
+            y: self.y + rhs,
+            z: self.z + rhs,
         }
     }
 }
 
-impl DivAssign for Vec3 {
+impl AddAssign<f64> for Vec3 {
     #[inline]
-    fn div_assign(&mut self, rhs: Self) {
-        self.x /= rhs.x;
-        self.y /= rhs.y;
-        self.z /= rhs.z;
+    fn add_assign(&mut self, rhs: f64) {
+        self.x += rhs;
+        self.y += rhs;
+        self.z += rhs;
     }
 }
 
-impl Mul for Vec3 {
+impl Sub<Vec3> for Vec3 {
     type Output = Self;
+    #[inline]
+    fn sub(self, rhs: Self) -> Self::Output {
+        Self {
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+            z: self.z - rhs.z,
+        }
+    }
+}
 
+impl SubAssign<Vec3> for Vec3 {
+    #[inline]
+    fn sub_assign(&mut self, rhs: Self) {
+        self.x -= rhs.x;
+        self.y -= rhs.y;
+        self.z -= rhs.z;
+    }
+}
+
+impl Sub<f64> for Vec3 {
+    type Output = Self;
+    #[inline]
+    fn sub(self, rhs: f64) -> Self::Output {
+        Self {
+            x: self.x - rhs,
+            y: self.y - rhs,
+            z: self.z - rhs,
+        }
+    }
+}
+
+impl SubAssign<f64> for Vec3 {
+    #[inline]
+    fn sub_assign(&mut self, rhs: f64) {
+        self.x -= rhs;
+        self.y -= rhs;
+        self.z -= rhs;
+    }
+}
+
+impl Mul<Vec3> for Vec3 {
+    type Output = Self;
     #[inline]
     fn mul(self, rhs: Self) -> Self::Output {
         Self {
@@ -267,12 +340,117 @@ impl Mul for Vec3 {
     }
 }
 
-impl MulAssign for Vec3 {
+impl MulAssign<Vec3> for Vec3 {
     #[inline]
     fn mul_assign(&mut self, rhs: Self) {
         self.x *= rhs.x;
         self.y *= rhs.y;
         self.z *= rhs.z;
+    }
+}
+
+impl Mul<f64> for Vec3 {
+    type Output = Self;
+    #[inline]
+    fn mul(self, rhs: f64) -> Self::Output {
+        Self {
+            x: self.x * rhs,
+            y: self.y * rhs,
+            z: self.z * rhs,
+        }
+    }
+}
+
+impl MulAssign<f64> for Vec3 {
+    #[inline]
+    fn mul_assign(&mut self, rhs: f64) {
+        self.x *= rhs;
+        self.y *= rhs;
+        self.z *= rhs;
+    }
+}
+
+impl Div<Vec3> for Vec3 {
+    type Output = Self;
+    #[inline]
+    fn div(self, rhs: Self) -> Self::Output {
+        Self {
+            x: self.x / rhs.x,
+            y: self.y / rhs.y,
+            z: self.z / rhs.z,
+        }
+    }
+}
+
+impl DivAssign<Vec3> for Vec3 {
+    #[inline]
+    fn div_assign(&mut self, rhs: Self) {
+        self.x /= rhs.x;
+        self.y /= rhs.y;
+        self.z /= rhs.z;
+    }
+}
+
+impl Div<f64> for Vec3 {
+    type Output = Self;
+    #[inline]
+    fn div(self, rhs: f64) -> Self::Output {
+        Self {
+            x: self.x / rhs,
+            y: self.y / rhs,
+            z: self.z / rhs,
+        }
+    }
+}
+
+impl DivAssign<f64> for Vec3 {
+    #[inline]
+    fn div_assign(&mut self, rhs: f64) {
+        self.x /= rhs;
+        self.y /= rhs;
+        self.z /= rhs;
+    }
+}
+
+impl Rem<Vec3> for Vec3 {
+    type Output = Self;
+    #[inline]
+    fn rem(self, rhs: Self) -> Self::Output {
+        Self {
+            x: self.x % rhs.x,
+            y: self.y % rhs.y,
+            z: self.z % rhs.z,
+        }
+    }
+}
+
+impl RemAssign<Vec3> for Vec3 {
+    #[inline]
+    fn rem_assign(&mut self, rhs: Self) {
+        self.x %= rhs.x;
+        self.y %= rhs.y;
+        self.z %= rhs.z;
+    }
+}
+
+impl Rem<f64> for Vec3 {
+    type Output = Self;
+    #[inline]
+    fn rem(self, rhs: f64) -> Self::Output {
+        Self {
+            x: self.x % rhs,
+            y: self.y % rhs,
+            z: self.z % rhs,
+        }
+    }
+}
+
+impl RemAssign<f64> for Vec3 {
+    #[inline]
+    fn rem_assign(&mut self, rhs: f64) {
+        self.x %= rhs;
+        self.y %= rhs;
+        self.z %= rhs;
     }
 }
 
@@ -289,34 +467,8 @@ impl Neg for Vec3 {
     }
 }
 
-impl Sub for Vec3 {
-    type Output = Self;
-
-    #[inline]
-    fn sub(self, rhs: Self) -> Self::Output {
-        Self {
-            x: self.x - rhs.x,
-            y: self.y - rhs.y,
-            z: self.z - rhs.z,
-        }
-    }
-}
-
-impl SubAssign for Vec3 {
-    #[inline]
-    fn sub_assign(&mut self, rhs: Self) {
-        self.x -= rhs.x;
-        self.y -= rhs.y;
-        self.z -= rhs.z;
-    }
-}
-
 impl Display for Vec3 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "{{ x: {:.5e}, y: {:.5e}, z: {:.5e} }}",
-            self.x, self.y, self.z
-        )
+        write!(f, "{} {} {}", self.x, self.y, self.z)
     }
 }
