@@ -3,10 +3,10 @@
 use crate::vec3::Vec3;
 
 /// Lennard-Jones 𝜀* parameter.
-pub const EPSILON_STAR: f64 = 0.2;
+pub const EPSILON_STAR: f64 = 0.53;
 
 /// Lennard-Jones r* parameter.
-pub const R_STAR: f64 = 3.0;
+pub const R_STAR: f64 = 2.85;
 pub const R_STAR_SQ: f64 = R_STAR * R_STAR;
 
 /// Cut radius to correct the potential energy of a particle.
@@ -14,37 +14,37 @@ pub const R_CUT: f64 = 10.0;
 pub const R_CUT_SQ: f64 = R_CUT * R_CUT;
 
 /// Dimensions of the replicated cubic box in periodcial conditions.
-pub const L: isize = 30;
+pub const L: f64 = 31.09;
 
 /// Translation vectors for periodical conditions.
 pub const TRANSLATION_VECTORS: [Vec3; 27] = [
     Vec3::zero(),
-    Vec3::z(L as f64),
-    Vec3::y(L as f64),
-    Vec3::new(0.0, L as f64, L as f64),
-    Vec3::x(L as f64),
-    Vec3::new(L as f64, 0.0, L as f64),
-    Vec3::new(L as f64, L as f64, 0.0),
-    Vec3::splat(L as f64),
-    Vec3::new(L as f64, L as f64, -L as f64),
-    Vec3::new(L as f64, -L as f64, L as f64),
-    Vec3::new(L as f64, -L as f64, -L as f64),
-    Vec3::new(-L as f64, L as f64, L as f64),
-    Vec3::new(-L as f64, L as f64, -L as f64),
-    Vec3::new(-L as f64, -L as f64, L as f64),
-    Vec3::splat(-L as f64),
-    Vec3::z(-L as f64),
-    Vec3::y(-L as f64),
-    Vec3::new(0.0, -L as f64, -L as f64),
-    Vec3::x(-L as f64),
-    Vec3::new(-L as f64, 0.0, -L as f64),
-    Vec3::new(-L as f64, -L as f64, 0.0),
-    Vec3::new(L as f64, 0.0, -L as f64),
-    Vec3::new(L as f64, -L as f64, 0.0),
-    Vec3::new(-L as f64, 0.0, L as f64),
-    Vec3::new(0.0, L as f64, -L as f64),
-    Vec3::new(0.0, -L as f64, L as f64),
-    Vec3::new(-L as f64, L as f64, 0.0),
+    Vec3::z(L),
+    Vec3::y(L),
+    Vec3::new(0.0, L, L),
+    Vec3::x(L),
+    Vec3::new(L, 0.0, L),
+    Vec3::new(L, L, 0.0),
+    Vec3::splat(L),
+    Vec3::new(L, L, -L),
+    Vec3::new(L, -L, L),
+    Vec3::new(L, -L, -L),
+    Vec3::new(-L, L, L),
+    Vec3::new(-L, L, -L),
+    Vec3::new(-L, -L, L),
+    Vec3::splat(-L),
+    Vec3::z(-L),
+    Vec3::y(-L),
+    Vec3::new(0.0, -L, -L),
+    Vec3::x(-L),
+    Vec3::new(-L, 0.0, -L),
+    Vec3::new(-L, -L, 0.0),
+    Vec3::new(L, 0.0, -L),
+    Vec3::new(L, -L, 0.0),
+    Vec3::new(-L, 0.0, L),
+    Vec3::new(0.0, L, -L),
+    Vec3::new(0.0, -L, L),
+    Vec3::new(-L, L, 0.0),
 ];
 
 /// Number of symmetries in periodical conditions.
@@ -52,12 +52,13 @@ pub const N_SYM: usize = 27;
 
 /// Conversion factor to apply to units of force.
 pub const CONVERSION_FORCE: f64 = 0.0004186;
+pub const CONVERSION_FORCE_2: f64 = 2.0 * CONVERSION_FORCE;
 
 /// Particle mass.
 pub const M_I: f64 = 18.0;
 
-/// Constant parameter used to compute the kinetic temperature of the particle system.
-pub const R_CONST: f64 = 0.00199;
+/// Boltzman constant parameter used to compute the kinetic temperature of the particle system.
+pub const K_BOLTZMANN: f64 = 8.31e-7;
 
 /// Initial temperature of the system (in Kelvin).
 pub const T_0: f64 = 300.0;

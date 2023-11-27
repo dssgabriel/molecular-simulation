@@ -8,6 +8,7 @@ pub enum AlgorithmKind {
     PeriodicalLennardJones,
     ClassicalVerletVelocity,
     PeriodicalVerletVelocity,
+    Exam,
 }
 
 impl FromStr for AlgorithmKind {
@@ -18,6 +19,7 @@ impl FromStr for AlgorithmKind {
             "periodical-lennard-jones" | "plj" => Ok(AlgorithmKind::PeriodicalLennardJones),
             "classical-verlet-velocity" | "cvv" => Ok(AlgorithmKind::ClassicalVerletVelocity),
             "periodical-verlet-velocity" | "pvv" => Ok(AlgorithmKind::PeriodicalVerletVelocity),
+            "exam" | "e" => Ok(AlgorithmKind::Exam),
             _ => Err("Unknown algorithm kind"),
         }
     }
@@ -26,14 +28,15 @@ impl FromStr for AlgorithmKind {
 impl Display for AlgorithmKind {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::ClassicalLennardJones => write!(f, "classical-lennard-Jones"),
-            Self::PeriodicalLennardJones => write!(f, "periodical-lennard-Jones"),
+            Self::ClassicalLennardJones => write!(f, "classical-lennard-jones"),
+            Self::PeriodicalLennardJones => write!(f, "periodical-lennard-jones"),
             Self::ClassicalVerletVelocity => {
                 write!(f, "classical-verlet-velocity")
             }
             Self::PeriodicalVerletVelocity => {
                 write!(f, "periodical-verlet-velocity")
             }
+            Self::Exam => write!(f, "exam"),
         }
     }
 }
@@ -41,9 +44,13 @@ impl Display for AlgorithmKind {
 #[derive(Debug, Parser)]
 #[command(version, author, about)]
 pub struct Cli {
-    /// Path to configuration file.
-    #[arg(short, long, default_value_t = String::from("particule.xyz"))]
-    pub configuration: String,
+    /// Path to configuration file with particles positions.
+    #[arg(short, long, default_value_t = String::from("exam270323.xyz"))]
+    pub position_configuration: String,
+
+    /// Path to configuration file with particles kinetic momentums.
+    #[arg(short, long, default_value_t = String::from("exam270323.mci"))]
+    pub kinetic_momentums_configuration: String,
 
     /// Path to output PDB file.
     #[arg(short, long, default_value_t = String::from("simulation.pdb"))]
@@ -58,6 +65,6 @@ pub struct Cli {
     pub m_step: usize,
 
     /// Algorithm to run.
-    #[arg(short, long, default_value_t = AlgorithmKind::PeriodicalVerletVelocity)]
+    #[arg(short, long, default_value_t = AlgorithmKind::Exam)]
     pub algorithm: AlgorithmKind,
 }

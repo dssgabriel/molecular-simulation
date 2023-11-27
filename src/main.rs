@@ -12,7 +12,10 @@ use std::time::Instant;
 fn main() {
     let args = Cli::parse();
 
-    let mut system = ParticleSystem::from_config(args.configuration.into());
+    let mut system = ParticleSystem::from_config(
+        args.position_configuration.into(),
+        args.kinetic_momentums_configuration.into(),
+    );
 
     match args.algorithm {
         AlgorithmKind::ClassicalLennardJones => {
@@ -71,41 +74,32 @@ fn main() {
             );
         }
         AlgorithmKind::PeriodicalVerletVelocity => {
-            // Compute forces using periodical Lennard-Jones algorithm.
-            system.periodical_lennard_jones();
-
-            system.init_kinetic_momentums();
+            // system.init_kinetic_momentums();
             system.kinetic_energy = system.compute_kinetic_energy();
             system.temperature = system.compute_temperature();
 
-            let total_energy = system.potential_energy + system.kinetic_energy;
-            println!(
-                "  Step {}, E = {:.5} eV, ∑f: {:.5e} N, KE: {:.5} J, T: {:.2} K",
-                0,
-                system.potential_energy,
-                system.sum_of_forces.sum(),
-                system.kinetic_energy,
-                system.temperature
-            );
+            // Compute forces using periodical Lennard-Jones algorithm.
+            system.periodical_lennard_jones();
 
+            // CSV header
+            println!("Step; Total energy; Potential energy; Temperature;");
             let now = Instant::now();
             for i in 0..args.n_step {
                 system.verlet_velocity();
-
-                system.periodical_lennard_jones();
                 system.kinetic_energy = system.compute_kinetic_energy();
                 system.temperature = system.compute_temperature();
+
+                system.periodical_lennard_jones();
 
                 if i % args.m_step == 0 {
                     system.berendsen_thermostat();
                 }
 
                 println!(
-                    "  Step {}, E = {:.5} eV, ∑f: {:.5e} N, KE: {:.5} J, T: {:.2} K",
-                    i + 1,
+                    "{}; {}; {}; {};",
+                    i,
+                    system.potential_energy + system.kinetic_energy,
                     system.potential_energy,
-                    system.sum_of_forces.sum(),
-                    system.kinetic_energy,
                     system.temperature
                 );
 
@@ -116,6 +110,59 @@ fn main() {
                 "Verlet velocity (finished in {:?}):\n\tE= {:.5} eV\n\t∑ forces: {:.5e} N\n\tKinetic energy: {} J\n\tTemperature: {:.2} K",
                 duration, system.potential_energy, system.sum_of_forces.sum(), system.kinetic_energy, system.temperature
             );
+        }
+        AlgorithmKind::Exam => {
+            // println!("rc; m;");
+
+            // let rc = 8.0;
+            // let m = system.mean_nb_particles_in_range(rc);
+            // println!("{rc}; {m};");
+
+            // let rc = 10.0;
+            // let m = system.mean_nb_particles_in_range(rc);
+            // println!("{rc}; {m};");
+
+            // let rc = 12.0;
+            // let m = system.mean_nb_particles_in_range(rc);
+            // println!("{rc}; {m};");
+
+            // let rc = 14.0;
+            // let m = system.mean_nb_particles_in_range(rc);
+            // println!("{rc}; {m};");
+
+            // let sum_of_velocities = system.sum_of_velocities();
+            // println!(
+            //     "\n∑ velocities:\n\tx = {:.6e}\n\ty = {:.6e}\n\tz = {:.6e}",
+            //     sum_of_velocities.x, sum_of_velocities.y, sum_of_velocities.z
+            // );
+
+            // // update kinetic energy
+            // system.kinetic_energy = system.compute_kinetic_energy();
+            // system.temperature = system.compute_temperature();
+            // println!("temperature: t = {} k", system.temperature);
+
+            // Compute forces using periodical Lennard-Jones algorithm.
+            system.lennard_jones();
+
+            // CSV header
+            println!("Step; Total energy; Potential energy; Temperature;");
+            let now = Instant::now();
+            for i in 0..args.n_step {
+                system.verlet_velocity();
+                system.kinetic_energy = system.compute_kinetic_energy();
+                system.temperature = system.compute_temperature();
+                system.lennard_jones();
+
+                println!(
+                    "{}; {}; {}; {};",
+                    i,
+                    system.potential_energy + system.kinetic_energy,
+                    system.potential_energy,
+                    system.temperature
+                );
+            }
+            let duration = now.elapsed();
+            eprintln!("Simulation finished in {duration:?}");
         }
     }
 }
