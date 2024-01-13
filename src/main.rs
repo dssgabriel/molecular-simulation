@@ -7,14 +7,15 @@ use crate::cli::{AlgorithmKind, Cli};
 use crate::particle_system::ParticleSystem;
 
 use clap::Parser;
+use std::path::PathBuf;
 use std::time::Instant;
 
 fn main() {
     let args = Cli::parse();
 
     let mut system = ParticleSystem::from_config(
-        args.position_configuration.into(),
-        args.kinetic_momentums_configuration.into(),
+        PathBuf::from("particule.xyz"),
+        PathBuf::from("particule.xyz"),
     );
 
     match args.algorithm {

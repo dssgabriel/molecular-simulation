@@ -195,7 +195,8 @@ impl ParticleSystem {
                     }
 
                     let distance = R_STAR_SQ / self.positions[i].distance_square(self.positions[j]);
-                    let du_ij = -48.0 * EPSILON_STAR * (distance.powi(7) - distance.powi(4));
+                    let distance_cube = distance.powi(3);
+                    let du_ij = -48.0 * EPSILON_STAR * (distance.powi(4) * (distance_cube - 1.0));
 
                     // Compute force exerted on particle `i`
                     *force_i += (self.positions[i] - self.positions[j]) * du_ij;
@@ -203,7 +204,7 @@ impl ParticleSystem {
                     // Update energy of the particle system
                     // (but only for i < j so we don't double-count)
                     if i < j {
-                        energy += distance.powi(6) - 2.0 * distance.powi(3);
+                        energy += distance_cube * (distance_cube - 2.0);
                     }
                 }
 
@@ -241,14 +242,16 @@ impl ParticleSystem {
                         }
                         let distance = R_STAR_SQ / distance;
 
-                        let du_ij = -48.0 * EPSILON_STAR * (distance.powi(7) - distance.powi(4));
+                        let distance_cube = distance.powi(3);
+                        let du_ij =
+                            -48.0 * EPSILON_STAR * (distance.powi(4) * (distance_cube - 1.0));
 
                         *force_i += (self.positions[i] - translated_position_j) * du_ij;
 
                         // Update energy of the particle system
                         // (but only for i < j so we don't double-count)
                         if i < j {
-                            energy += distance.powi(6) - 2.0 * distance.powi(3);
+                            energy += distance_cube * (distance_cube - 2.0);
                         }
                     }
 
@@ -258,7 +261,7 @@ impl ParticleSystem {
         }
 
         self.sum_of_forces = self.forces.iter().fold(Vec3::zero(), |acc, f| acc + *f);
-        self.potential_energy *= 2.0 * EPSILON_STAR;
+        self.potential_energy *= 4.0 * EPSILON_STAR;
     }
 
     pub fn verlet_velocity(&mut self) {

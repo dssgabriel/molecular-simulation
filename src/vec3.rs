@@ -60,8 +60,8 @@ impl Vec3 {
     #[inline]
     pub const fn y(val: f64) -> Self {
         Self {
-            x: val,
-            y: 0.0,
+            x: 0.0,
+            y: val,
             z: 0.0,
         }
     }
@@ -69,9 +69,9 @@ impl Vec3 {
     #[inline]
     pub const fn z(val: f64) -> Self {
         Self {
-            x: val,
+            x: 0.0,
             y: 0.0,
-            z: 0.0,
+            z: val,
         }
     }
 
